@@ -81,10 +81,8 @@ export default function CreateOrphanage() {
   }
 
   function handleDeleteImage(index: number) {
-    console.log(images, previewImages);
     setImages(images.filter((image, mapIndex) => index !== mapIndex));
     setPreviewImages(previewImages.filter((previewImage, mapIndex) => index !== mapIndex));
-    console.log(images, previewImages);
   }
 
   return (
