@@ -1,27 +1,27 @@
-import React, { FormEvent, useState, ChangeEvent } from "react";
+import React, { FormEvent, useState, ChangeEvent, useEffect, CSSProperties } from "react";
 import { useHistory } from "react-router-dom";
 import { Map, Marker, TileLayer } from 'react-leaflet';
 import { LeafletMouseEvent } from 'leaflet';
 
-import { FiArrowLeft, FiPlus } from "react-icons/fi";
+import { FiArrowLeft, FiPlus, FiRepeat, FiX } from "react-icons/fi";
 
 import Sidebar from "../components/Sidebar";
 
 import '../styles/pages/create-orphanage.css';
 import mapIcon from "../utils/mapIcon";
 import api from "../services/api";
+import { FaLongArrowAltDown } from "react-icons/fa";
 
 export default function CreateOrphanage() {
   const history = useHistory();
 
-  const [ position, setPosition ] = useState({ latitude: 0, longitude: 0 });
+  const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
 
   const [name, setName] = useState("");
   const [about, setAbout] = useState("");
   const [instructions, setInstructions] = useState("");
   const [opening_hours, setOpeningHours] = useState("");
-  const [open_on_weekends, setOpenOnWeekends] = useState(true);s
-  TODO 
+  const [open_on_weekends, setOpenOnWeekends] = useState(true);
   //Botao excluir imagem
   //Tirar do dois
   const [images, setImages] = useState<File[]>([]);
@@ -29,7 +29,7 @@ export default function CreateOrphanage() {
 
   function handleMapClick(event: LeafletMouseEvent) {
     const { lat, lng } = event.latlng;
-    
+
     setPosition({
       latitude: lat,
       longitude: lng,
@@ -55,18 +55,18 @@ export default function CreateOrphanage() {
       data.append('images', image);
     });
 
-    try{ 
+    try {
       await api.post('orphanages', data);
 
       alert('Cadastro realizado com sucesso');
       history.push('/app');
-    }catch(err){
+    } catch (err) {
       alert('Erro ao realizar o cadastro')
     }
   }
 
   function handleSelectImages(event: ChangeEvent<HTMLInputElement>) {
-    if(!event.target.files)
+    if (!event.target.files)
       return;
 
     const selectedImages = Array.from(event.target.files);
@@ -78,6 +78,13 @@ export default function CreateOrphanage() {
     });
 
     setPreviewImages(selectedImagesPreview);
+  }
+
+  function handleDeleteImage(index: number) {
+    console.log(images, previewImages);
+    setImages(images.filter((image, mapIndex) => index !== mapIndex));
+    setPreviewImages(previewImages.filter((previewImage, mapIndex) => index !== mapIndex));
+    console.log(images, previewImages);
   }
 
   return (
@@ -123,6 +130,7 @@ export default function CreateOrphanage() {
               </label>
               <textarea
                 id="about"
+
                 maxLength={300}
                 value={about}
                 onChange={(event) => setAbout(event.target.value)}
@@ -133,23 +141,35 @@ export default function CreateOrphanage() {
               <label htmlFor="images">Fotos</label>
 
               <div className="images-container">
+                {
+                  previewImages.map((image, index) => {
+                    return (
+                      <div
+                        key={image}
+                        className={`image-container ${(index + 1) % 5 === 0 ? 'last-image-container' : ''}`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteImage(index)}
+                        >
+                          <FiX size={15} color="#ff0000" />
+                        </button>
+                        <img src={image} alt={name} />
+                      </div>
+                    )
+                  })
+                }
 
-                {previewImages.map(image => {
-                  return (
-                    <img key={image} src={image} alt={name}/>
-                  )
-                })}
-
-                <label htmlFor="image[]" className="new-image">
+                < label htmlFor="image[]" className="new-image" >
                   <FiPlus size={24} color="#15b6d6" />
                 </label>
 
               </div>
 
-              <input 
-                multiple 
-                type="file" 
-                id="image[]" 
+              <input
+                multiple
+                type="file"
+                id="image[]"
                 hidden
                 onChange={handleSelectImages}
               />
@@ -204,7 +224,7 @@ export default function CreateOrphanage() {
           </button>
         </form>
       </main>
-    </div>
+    </div >
   );
 }
 
